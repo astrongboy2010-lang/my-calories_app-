@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>تتبع السعرات والماء | FitTrack Mobile</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --accent-primary: #10B981;
+            --accent-secondary: #06B6D4;
+            --accent-warning: #F59E0B;
+            --accent-danger: #EF4444;
+            --water-color: #3B82F6;
+            --border-color: #E2E8F0;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --font: 'Tajawal', sans-serif;
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        .dark-theme {
+            --bg-primary: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: #334155;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-primary);
+            padding-bottom: calc(75px + var(--safe-area-bottom));
+        }
+
+        /* Top Header */
+        .app-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
+
+        .header-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .header-actions button:active {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Content Views */
+        .tab-content {
+            display: none;
+            padding: 16px;
+            flex: 1;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards Layout */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Progress Rings & Bars */
+        .calories-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .calorie-box {
+            background: var(--bg-primary);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .calorie-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
+
+        .calorie-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Macros Bar */
+        .macro-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .macro-item {
+            background: var(--bg-primary);
+            padding: 10px 8px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .macro-item span {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .macro-item strong {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .macro-progress {
+            height: 4px;
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .macro-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        /* Water Section */
+        .water-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(6, 182, 212, 0.05));
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .water-progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.06);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .water-fill {
+            height: 100%;
+            background: var(--water-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .water-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .water-btn {
+            flex: 1;
+            padding: 8px 4px;
+            border: 1px solid var(--water-color);
+            background: transparent;
+            color: var(--water-color);
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .water-btn:active {
+            background: var(--water-color);
+            color: #FFF;
+        }
+
+        /* Meal Category Header */
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+
+        .meal-title {
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .meal-add-btn {
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+            font-weight: 700;
+        }
+
+        /* Food Item List */
+        .food-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .food-item:last-child {
+            border-bottom: none;
+        }
+
+        .food-info strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .food-info span {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .food-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .food-cals {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .delete-btn {
+            color: var(--accent-danger);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 13px;
+        }
+
+        /* Library & Input Styling */
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .input-control, select.input-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            color: var(--text-main);
+            outline: none;
+            font-size: 13px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary:active {
+            opacity: 0.9;
+        }
+
+        /* Bottom Mobile Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 11px;
+            cursor: pointer;
+            width: 33.33%;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item.active {
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        /* Modal Overlay */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 480px;
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.2s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* BMI Result Box */
+        .bmi-box {
+            background: var(--bg-primary);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            margin-top: 12px;
+        }
+
+        .bmi-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent-secondary);
+        }
+
+        .bmi-status {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Top Bar Header -->
+        <header class="app-header">
+            <div class="header-title">
+                <i class="fa-solid fa-leaf"></i>
+                <span>FitTrack</span>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+            </div>
+        </header>
+
+        <!-- Tab 1: Diary (اليوميات) -->
+        <main id="tab-diary" class="tab-content active">
+            <!-- Calorie & Goal Summary Card -->
+            <div class="card">
+                <div class="calories-summary">
+                    <div class="calorie-box">
+                        <div class="calorie-val" id="consumedCals">0</div>
+                        <div class="calorie-label">المستهلك (سعرة)</div>
+                    </div>
+                    <div class="calorie-box">
+                        <div class="calorie-val" id="remainingCals" style="color: var(--accent-secondary)">2000</div>
+                        <div class="calorie-label">المتبقي (من الأهداف)</div>
+                    </div>
+                </div>
+
+                <!-- Macros Breakdown -->
+                <div class="macro-grid">
+                    <div class="macro-item">
+                        <span>البروتين</span>
+                        <strong id="protVal">0g / 150g</strong>
+                        <div class="macro-progress"><div class="macro-progress-fill" id="protBar" style="width: 0%; background: #EF4444;"></div></div>
+                    </div>
+                    <div class="macro-item">
+                        <span>الكارب</span>
+                        <strong id="carbVal">0g / 200g</strong>
+                        <div class="macro-progress"><div class="macro-progress-fill" id="carbBar" style="width: 0%; background: #10B981;"></div></div>
+                    </div>
+                    <div class="macro-item">
+                        <span>الدهون</span>
+                        <strong id="fatVal">0g / 65g</strong>
+                        <div class="macro-progress"><div class="macro-progress-fill" id="fatBar" style="width: 0%; background: #F59E0B;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Water Tracking Card -->
+            <div class="card water-card">
+                <div class="card-header">
+                    <div class="card-title" style="color: var(--water-color);">
+                        <i class="fa-solid fa-glass-water"></i> تتبع شرب الماء
+                    </div>
+                    <span id="waterText" style="font-weight: 700; font-size: 13px;">0 / 3.0 L</span>
+                </div>
+                <div class="water-progress-bar">
+                    <div class="water-fill" id="waterFill"></div>
+                </div>
+                <div class="water-actions">
+                    <button class="water-btn" onclick="addWater(250)">+250 مل</button>
+                    <button class="water-btn" onclick="addWater(500)">+500 مل</button>
+                    <button class="water-btn" onclick="resetWater()" style="border-color: var(--accent-danger); color: var(--accent-danger); flex: 0.5;"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Meals Lists -->
+            <div class="card">
+                <div class="meal-header">
+                    <div class="meal-title"><i class="fa-solid fa-utensils" style="color: #F59E0B;"></i> الفطور</div>
+                    <button class="meal-add-btn" onclick="openAddModal('breakfast')">+ إضافة</button>
+                </div>
+                <div id="list-breakfast"></div>
+            </div>
+
+            <div class="card">
+                <div class="meal-header">
+                    <div class="meal-title"><i class="fa-solid fa-bowl-rice" style="color: #10B981;"></i> الغداء</div>
+                    <button class="meal-add-btn" onclick="openAddModal('lunch')">+ إضافة</button>
+                </div>
+                <div id="list-lunch"></div>
+            </div>
+
+            <div class="card">
+                <div class="meal-header">
+                    <div class="meal-title"><i class="fa-solid fa-cloud-moon" style="color: #6366F1;"></i> العشاء</div>
+                    <button class="meal-add-btn" onclick="openAddModal('dinner')">+ إضافة</button>
+                </div>
+                <div id="list-dinner"></div>
+            </div>
+
+            <div class="card">
+                <div class="meal-header">
+                    <div class="meal-title"><i class="fa-solid fa-cookie-bite" style="color: #EC4899;"></i> الوجبات الخفيفة</div>
+                    <button class="meal-add-btn" onclick="openAddModal('snack')">+ إضافة</button>
+                </div>
+                <div id="list-snack"></div>
+            </div>
+        </main>
+
+        <!-- Tab 2: Food Library (مكتبة الأغذية والسوائل) -->
+        <main id="tab-library" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-book-medical"></i> إضافة صنف جديد (لكل 100 وحدة أساسية)</div>
+                </div>
+                <div class="input-group">
+                    <label>اسم الصنف</label>
+                    <input type="text" id="libName" class="input-control" placeholder="مثال: حليب كامل الدسم / صدر دجاج">
+                </div>
+                <div class="input-group">
+                    <label>وحدة القياس الأساسية (لكل 100)</label>
+                    <select id="libUnit" class="input-control">
+                        <option value="g">جرام (g) - للأكل الصلب</option>
+                        <option value="ml">مليلتر (ml) - للسوائل (حليب، عصير...)</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="input-group">
+                        <label>السعرات (لكل 100)</label>
+                        <input type="number" id="libCals" class="input-control" placeholder="60">
+                    </div>
+                    <div class="input-group">
+                        <label>البروتين (g)</label>
+                        <input type="number" id="libProt" class="input-control" placeholder="3.2">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="input-group">
+                        <label>الكارب (g)</label>
+                        <input type="number" id="libCarb" class="input-control" placeholder="4.8">
+                    </div>
+                    <div class="input-group">
+                        <label>الدهون (g)</label>
+                        <input type="number" id="libFat" class="input-control" placeholder="3.3">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="saveToLibrary()">حفظ في المكتبة</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-list-check"></i> قائمة الأغذية والسوائل المسجلة</div>
+                </div>
+                <div id="libraryList"></div>
+            </div>
+        </main>
+
+        <!-- Tab 3: Settings (الإعدادات والجسد) -->
+        <main id="tab-settings" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-sliders"></i> الأهداف اليومية للماكروز</div>
+                </div>
+                <div class="input-group">
+                    <label>هدف السعرات اليومي (kcal)</label>
+                    <input type="number" id="goalCals" class="input-control" value="2000">
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <div class="input-group">
+                        <label>البروتين (g)</label>
+                        <input type="number" id="goalProt" class="input-control" value="150">
+                    </div>
+                    <div class="input-group">
+                        <label>الكارب (g)</label>
+                        <input type="number" id="goalCarb" class="input-control" value="200">
+                    </div>
+                    <div class="input-group">
+                        <label>الدهون (g)</label>
+                        <input type="number" id="goalFat" class="input-control" value="65">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>هدف الماء اليومي</label>
+                    <select id="goalWater" class="input-control">
+                        <option value="1.5">1.5 لتر</option>
+                        <option value="3.0" selected>3.0 لتر</option>
+                        <option value="4.5">4.5 لتر</option>
+                    </select>
+                </div>
+                <button class="btn-primary" onclick="saveSettings()">حفظ الأهداف</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-weight-scale"></i> القياسات ومؤشر الكتلة (BMI)</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="input-group">
+                        <label>الطول (سم)</label>
+                        <input type="number" id="userHeight" class="input-control" placeholder="175" oninput="calculateBMI()">
+                    </div>
+                    <div class="input-group">
+                        <label>الوزن (كجم)</label>
+                        <input type="number" id="userWeight" class="input-control" placeholder="70" oninput="calculateBMI()">
+                    </div>
+                </div>
+                <div class="bmi-box">
+                    <div class="bmi-val" id="bmiResult">--</div>
+                    <div class="bmi-status" id="bmiStatus">أدخل الطول والوزن لحساب المؤشر</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('diary', this)">
+                <i class="fa-solid fa-calendar-day"></i>
+                <span>اليوميات</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('library', this)">
+                <i class="fa-solid fa-utensils"></i>
+                <span>المكتبة</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('settings', this)">
+                <i class="fa-solid fa-gear"></i>
+                <span>الإعدادات</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Modal Form: Dynamic Food Adding -->
+    <div id="addFoodModal" class="modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <div class="card-title" id="modalTitle">إضافة طعام أو سائل</div>
+                <button onclick="closeModal()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="input-group">
+                <label>التصنيف (مكان الإضافة)</label>
+                <select id="modalMealCategory" class="input-control">
+                    <option value="breakfast">الفطور</option>
+                    <option value="lunch">الغداء</option>
+                    <option value="dinner">العشاء</option>
+                    <option value="snack">وجبات خفيفة / سناك</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>طريقة الإدخال</label>
+                <select id="modalMode" class="input-control" onchange="toggleModalMode()">
+                    <option value="manual">إدخال مباشر (اسم وسعرات مخصصة)</option>
+                    <option value="library">اختيار من المكتبة المسجلة</option>
+                </select>
+            </div>
+
+            <!-- Library Selector Mode -->
+            <div id="modeLibrary" style="display: none;">
+                <div class="input-group">
+                    <label>اختر العنصر من المكتبة</label>
+                    <select id="modalLibrarySelect" class="input-control" onchange="updateModalUnitLabel()"></select>
+                </div>
+                <div class="input-group">
+                    <label id="modalQuantityLabel">الكمية (g)</label>
+                    <input type="number" id="modalLibGrams" class="input-control" value="100">
+                </div>
+            </div>
+
+            <!-- Manual Input Mode -->
+            <div id="modeManual">
+                <div class="input-group">
+                    <label>اسم الصنف</label>
+                    <input type="text" id="manualName" class="input-control" placeholder="مثال: حليب قليل الدسم (250 مل)">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="input-group">
+                        <label>السعرات (kcal)</label>
+                        <input type="number" id="manualCals" class="input-control" placeholder="120">
+                    </div>
+                    <div class="input-group">
+                        <label>البروتين (g)</label>
+                        <input type="number" id="manualProt" class="input-control" placeholder="8">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="input-group">
+                        <label>الكارب (g)</label>
+                        <input type="number" id="manualCarb" class="input-control" placeholder="12">
+                    </div>
+                    <div class="input-group">
+                        <label>الدهون (g)</label>
+                        <input type="number" id="manualFat" class="input-control" placeholder="4">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" style="margin-top: 10px;" onclick="confirmAddFood()">تأكيد الإضافة</button>
+        </div>
+    </div>
+
+    <!-- Application Logic (Vanilla JS) -->
+    <script>
+        let state = {
+            goals: { cals: 2000, prot: 150, carb: 200, fat: 65, water: 3.0 },
+            body: { height: 0, weight: 0 },
+            waterConsumed: 0,
+            library: [
+                { id: 1, name: 'صدر دجاج مشوي', cals: 165, prot: 31, carb: 0, fat: 3.6, unit: 'g' },
+                { id: 2, name: 'حليب كامل الدسم', cals: 60, prot: 3.2, carb: 4.8, fat: 3.3, unit: 'ml' },
+                { id: 3, name: 'عصير برتقال طبيعي', cals: 45, prot: 0.7, carb: 10.4, fat: 0.2, unit: 'ml' }
+            ],
+            todayMeals: {
+                breakfast: [],
+                lunch: [],
+                dinner: [],
+                snack: []
+            }
+        };
+
+        function loadStorage() {
+            const saved = localStorage.getItem('fitTrackData');
+            if (saved) {
+                state = JSON.parse(saved);
+            }
+            document.getElementById('goalCals').value = state.goals.cals;
+            document.getElementById('goalProt').value = state.goals.prot;
+            document.getElementById('goalCarb').value = state.goals.carb;
+            document.getElementById('goalFat').value = state.goals.fat;
+            document.getElementById('goalWater').value = state.goals.water;
+            
+            if(state.body) {
+                document.getElementById('userHeight').value = state.body.height || '';
+                document.getElementById('userWeight').value = state.body.weight || '';
+                calculateBMI();
+            }
+            
+            renderAll();
+        }
+
+        function saveStorage() {
+            localStorage.setItem('fitTrackData', JSON.stringify(state));
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            element.classList.add('active');
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+        });
+
+        function addWater(amount) {
+            state.waterConsumed += amount;
+            saveStorage();
+            renderWater();
+        }
+
+        function resetWater() {
+            state.waterConsumed = 0;
+            saveStorage();
+            renderWater();
+        }
+
+        function renderWater() {
+            const goalMl = state.goals.water * 1000;
+            const percentage = Math.min((state.waterConsumed / goalMl) * 100, 100);
+            document.getElementById('waterFill').style.width = `${percentage}%`;
+            document.getElementById('waterText').innerText = `${(state.waterConsumed / 1000).toFixed(2)} / ${state.goals.water} L`;
+        }
+
+        function renderAll() {
+            renderWater();
+            renderLibrary();
+            renderMeals();
+        }
+
+        function renderMeals() {
+            let totalCals = 0, totalProt = 0, totalCarb = 0, totalFat = 0;
+
+            ['breakfast', 'lunch', 'dinner', 'snack'].forEach(category => {
+                const container = document.getElementById(`list-${category}`);
+                container.innerHTML = '';
+
+                state.todayMeals[category].forEach((item, index) => {
+                    totalCals += item.cals;
+                    totalProt += item.prot;
+                    totalCarb += item.carb;
+                    totalFat += item.fat;
+
+                    const row = document.createElement('div');
+                    row.className = 'food-item';
+                    row.innerHTML = `
+                        <div class="food-info">
+                            <strong>${item.name}</strong>
+                            <span>P: ${item.prot.toFixed(1)}g | C: ${item.carb.toFixed(1)}g | F: ${item.fat.toFixed(1)}g</span>
+                        </div>
+                        <div class="food-actions">
+                            <span class="food-cals">${item.cals.toFixed(0)} kcal</span>
+                            <button class="delete-btn" onclick="removeMealItem('${category}', ${index})"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    `;
+                    container.appendChild(row);
+                });
+            });
+
+            document.getElementById('consumedCals').innerText = Math.round(totalCals);
+            const remaining = state.goals.cals - totalCals;
+            document.getElementById('remainingCals').innerText = Math.round(remaining);
+
+            document.getElementById('protVal').innerText = `${totalProt.toFixed(0)}g / ${state.goals.prot}g`;
+            document.getElementById('carbVal').innerText = `${totalCarb.toFixed(0)}g / ${state.goals.carb}g`;
+            document.getElementById('fatVal').innerText = `${totalFat.toFixed(0)}g / ${state.goals.fat}g`;
+
+            document.getElementById('protBar').style.width = `${Math.min((totalProt / state.goals.prot) * 100, 100)}%`;
+            document.getElementById('carbBar').style.width = `${Math.min((totalCarb / state.goals.carb) * 100, 100)}%`;
+            document.getElementById('fatBar').style.width = `${Math.min((totalFat / state.goals.fat) * 100, 100)}%`;
+        }
+
+        function removeMealItem(category, index) {
+            state.todayMeals[category].splice(index, 1);
+            saveStorage();
+            renderMeals();
+        }
+
+        function saveToLibrary() {
+            const name = document.getElementById('libName').value.trim();
+            const unit = document.getElementById('libUnit').value;
+            const cals = parseFloat(document.getElementById('libCals').value) || 0;
+            const prot = parseFloat(document.getElementById('libProt').value) || 0;
+            const carb = parseFloat(document.getElementById('libCarb').value) || 0;
+            const fat = parseFloat(document.getElementById('libFat').value) || 0;
+
+            if (!name) return alert('الرجاء إدخال اسم الصنف');
+
+            state.library.push({ id: Date.now(), name, unit, cals, prot, carb, fat });
+            saveStorage();
+            renderLibrary();
+
+            document.getElementById('libName').value = '';
+            document.getElementById('libCals').value = '';
+            document.getElementById('libProt').value = '';
+            document.getElementById('libCarb').value = '';
+            document.getElementById('libFat').value = '';
+        }
+
+        function deleteLibraryItem(id) {
+            state.library = state.library.filter(x => x.id !== id);
+            saveStorage();
+            renderLibrary();
+        }
+
+        function renderLibrary() {
+            const container = document.getElementById('libraryList');
+            const selectContainer = document.getElementById('modalLibrarySelect');
+            container.innerHTML = '';
+            selectContainer.innerHTML = '';
+
+            state.library.forEach(item => {
+                const unitText = item.unit === 'ml' ? 'مل' : 'جرام';
+                const el = document.createElement('div');
+                el.className = 'food-item';
+                el.innerHTML = `
+                    <div class="food-info">
+                        <strong>${item.name}</strong>
+                        <span>لكل 100 ${unitText}: ${item.cals}kcal (P:${item.prot}g C:${item.carb}g F:${item.fat}g)</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteLibraryItem(${item.id})"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                container.appendChild(el);
+
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.setAttribute('data-unit', item.unit);
+                opt.innerText = `${item.name} (${unitText})`;
+                selectContainer.appendChild(opt);
+            });
+            updateModalUnitLabel();
+        }
+
+        function updateModalUnitLabel() {
+            const selectContainer = document.getElementById('modalLibrarySelect');
+            const selectedOpt = selectContainer.options[selectContainer.selectedIndex];
+            if (selectedOpt) {
+                const unit = selectedOpt.getAttribute('data-unit');
+                const labelText = unit === 'ml' ? 'الكمية بالملليتر (مل)' : 'الكمية بالجرام (g)';
+                document.getElementById('modalQuantityLabel').innerText = labelText;
+            }
+        }
+
+        function openAddModal(category) {
+            document.getElementById('modalMealCategory').value = category;
+            document.getElementById('addFoodModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addFoodModal').classList.remove('active');
+        }
+
+        function toggleModalMode() {
+            const mode = document.getElementById('modalMode').value;
+            document.getElementById('modeManual').style.display = mode === 'manual' ? 'block' : 'none';
+            document.getElementById('modeLibrary').style.display = mode === 'library' ? 'block' : 'none';
+        }
+
+        function confirmAddFood() {
+            const category = document.getElementById('modalMealCategory').value;
+            const mode = document.getElementById('modalMode').value;
+
+            if (mode === 'manual') {
+                const name = document.getElementById('manualName').value.trim() || 'طعام مخصص';
+                const cals = parseFloat(document.getElementById('manualCals').value) || 0;
+                const prot = parseFloat(document.getElementById('manualProt').value) || 0;
+                const carb = parseFloat(document.getElementById('manualCarb').value) || 0;
+                const fat = parseFloat(document.getElementById('manualFat').value) || 0;
+
+                state.todayMeals[category].push({ name, cals, prot, carb, fat });
+            } else {
+                const libId = parseInt(document.getElementById('modalLibrarySelect').value);
+                const amount = parseFloat(document.getElementById('modalLibGrams').value) || 100;
+                const libItem = state.library.find(x => x.id === libId);
+
+                if (libItem) {
+                    const factor = amount / 100;
+                    const unitLabel = libItem.unit === 'ml' ? 'مل' : 'جرام';
+                    state.todayMeals[category].push({
+                        name: `${libItem.name} (${amount} ${unitLabel})`,
+                        cals: libItem.cals * factor,
+                        prot: libItem.prot * factor,
+                        carb: libItem.carb * factor,
+                        fat: libItem.fat * factor
+                    });
+                }
+            }
+
+            saveStorage();
+            renderMeals();
+            closeModal();
+            document.getElementById('manualName').value = '';
+            document.getElementById('manualCals').value = '';
+            document.getElementById('manualProt').value = '';
+            document.getElementById('manualCarb').value = '';
+            document.getElementById('manualFat').value = '';
+        }
+
+        function saveSettings() {
+            state.goals.cals = parseFloat(document.getElementById('goalCals').value) || 2000;
+            state.goals.prot = parseFloat(document.getElementById('goalProt').value) || 150;
+            state.goals.carb = parseFloat(document.getElementById('goalCarb').value) || 200;
+            state.goals.fat = parseFloat(document.getElementById('goalFat').value) || 65;
+            state.goals.water = parseFloat(document.getElementById('goalWater').value) || 3.0;
+
+            saveStorage();
+            renderAll();
+            alert('تم حفظ الأهداف بنجاح!');
+        }
+
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('userHeight').value) / 100;
+            const weight = parseFloat(document.getElementById('userWeight').value);
+
+            state.body = { height: height * 100, weight: weight };
+            saveStorage();
+
+            if (height > 0 && weight > 0) {
+                const bmi = (weight / (height * height)).toFixed(1);
+                document.getElementById('bmiResult').innerText = bmi;
+
+                let status = '';
+                if (bmi < 18.5) status = 'وزن منخفض (نحافة)';
+                else if (bmi < 25) status = 'وزن طبيعي ومثالي';
+                else if (bmi < 30) status = 'زيادة في الوزن';
+                else status = 'سمنة (تتطلب متابعة)';
+
+                document.getElementById('bmiStatus').innerText = status;
+            } else {
+                document.getElementById('bmiResult').innerText = '--';
+                document.getElementById('bmiStatus').innerText = 'أدخل الطول والوزن لحساب المؤشر';
+            }
+        }
+
+        window.onload = loadStorage;
+    </script>
+</body>
+</html>
